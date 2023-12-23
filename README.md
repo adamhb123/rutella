@@ -1,4 +1,4 @@
-# rust-share
+# rutella
 Implements Gnutella protocol for P2P file-sharing.
 
 # Process
