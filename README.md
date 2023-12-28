@@ -39,8 +39,7 @@ This exists in order to avoid flooding the entirety of large networks - a task t
 
 ## Descriptor structure
 ### Descriptor header
-![Descriptor ID (0-15) | Payload Descriptor (16) | TTL (17) | Hops (18) | Payload Length (19-2)](misc/image-0.png)
-
+![Descriptor ID (0-15) | Payload Descriptor (16) | TTL (17) | Hops (18) | Payload Length (19-22)](misc/image-0.png)
 #### Descriptor ID
 * A 16-byte string uniquely identifying the descriptor on the network
 
@@ -223,3 +222,5 @@ https://youtube.com/watch?v=WhZrsMY-c4g
 https://ipsit.bu.edu/sc546/sc546Fall2002/gnutella
 
 https://rfc-gnutella.sourceforge.net/developer/stable/
+
+https://github.com/vinayrp1/TCP-IP-implementation-using-RAW-sockets/blob/master/rawhttpget.py
