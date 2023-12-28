@@ -126,7 +126,7 @@ IP Address - The IP address of the host to which the file with File Index should
 
 Port - The port to which the file with index File Index should be pushed.
 
-* Note: All extension descriptors are excluded, as this is a bare-bones implementation
+<hr/>*Dev Note: All extension descriptors are excluded, as this is a bare-bones implementation*
 
 ## Descriptor Routing
 Gnutella servents MUST route protocol descriptors according to the following rules:

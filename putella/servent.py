@@ -8,10 +8,13 @@ from threading import Thread
 from queue import Queue, Empty
 from typing import Tuple
 from uuid import uuid4
+import descriptor
 
 GNUTELLA_TTL = 7
 # Servent guid
 servent_guid = uuid4().bytes
+
+hc_addr = "127.0.0.1", 9878
 
 gnutella_addr = ("127.0.0.1", random.randint(10000,12000))
 direct_peers = []
@@ -19,82 +22,12 @@ gnutella_command_queue = Queue()
 trigger_hc_request_flag = False
 last_query_hits = None
 
-class DescriptorType:
-    Ping = b"\x00"
-    Pong = b"\x01"
-    Push = b"\x40"
-    Query = b"\x80"
-    QueryHits = b"\x81"
-
-class DescriptorPayload(ABC):
-    @abstractmethod
-    def to_packet(self) -> bytes:
-        """Convert descriptor payload to packet
-        """
-        ...
-
-class PingDescriptorPayload(DescriptorPayload):
-    def to_packet(self) -> bytes:
-        """Ping descriptors have no payload"""
-        return b""
-
-class PongDescriptorPayload(DescriptorPayload):
-    def __init__(self, port: int, ip_address: str, n_files_shared: int, n_kb_shared: int):
-        self.port = port
-        self.ip_address = ip_address
-        self.n_files_shared = n_files_shared
-        self.n_kb_shared = n_kb_shared
-
-    def to_packet(self) -> bytes:
-        return struct.pack("!H4sII", self.port, socket.inet_aton(self.ip_address), self.n_files_shared, self.n_kb_shared)
-    
-class QueryDescriptorPayload(DescriptorPayload):
-    def __init__(self, minimum_speed: int, search_term: str):
-        self.minimum_speed = minimum_speed
-        self.search_term = search_term
-
-    def to_packet(self) -> bytes:
-        search_term_bytes_nul_terminated = self.search_term.encode('ascii') + b'\x00'
-        return struct.pack(f"!H{len(search_term_bytes_nul_terminated)}s", self.minimum_speed, search_term_bytes_nul_terminated)
-    
-class ResultSetPayload(DescriptorPayload):
-    def __init__(self, file_index: int, file_size: int, shared_file_name: str):
-        self.file_index = file_index
-        self.file_size = file_size
-        self.shared_file_name = shared_file_name
-    def to_packet(self) -> bytes:
-        + b"\x00\x00"
-class QueryHitsDescriptorPayload(DescriptorPayload):
-    def __init__(self, number_of_hits: int, port: int, ip_address: str, speed: int, result_set: ResultSetPayload):
-        self.number_of_hits = number_of_hits
-        self.port = port
-        self.ip_address = ip_address
-        self.speed = speed
-        self.result_set = result_set
-
-    def to_packet(self) -> bytes:
-        return struct.pack("!BH4sI", self.number_of_hits, self.port, socket.inet_aton(self.ip_address), self.speed) + self.result_set.to_packet() + struct.pack("!16s", servent_guid)
-    
-class Descriptor:
-    def __init__(self, descriptor_type: DescriptorType, payload: DescriptorPayload, TTL=GNUTELLA_TTL) -> None:
-        self.descriptor_id = uuid4().bytes
-        self.descriptor_type = descriptor_type
-        self.TTL = TTL
-        self.hops = 0
-        self.payload = payload
-       # self.payload = 
-    def to_packet(self):
-        payload_packet = self.payload.to_packet()
-        return struct.pack("!16sBBI", self.descriptor_id, self.TTL, self.hops, len(payload_packet)) + payload_packet
-    
-o = PongDescriptorPayload(12455, "192.168.4.4", 1, 36)
-print(o)
-packet = o.to_packet()
-descriptor = Descriptor(DescriptorType.Pong, o)
-descriptor_packet = descriptor.to_packet()
-print(struct.unpack("!16sBBIH4sII", descriptor_packet))
+hc_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+packet = descriptor.PongDescriptorPayload(6969,"192.168.1.1",24,256).to_packet()
+print(packet)
+hc_sock.connect(hc_addr)
+hc_sock.send(packet)
 quit()
-
 class GnutellaCommands(Enum):
     Connect=0
     Search=1
